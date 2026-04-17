@@ -1,62 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-type FormData = {
-  email: string;
-  password: string;
+type User = {
+  id: number;
+  name: string;
 };
 
-export default function LoginForm() {
-  const [form, setForm] = useState<FormData>({
-    email: "",
-    password: ""
-  });
-
+function UserList() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
+  useEffect(() => {
+    setTimeout(() => {
+      // giả lập API
+      const success = true;
 
-  const handleSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
+      if (success) {
+        setUsers([
+          { id: 1, name: "Sơn" },
+          { id: 2, name: "Nam" }
+        ]);
+      } else {
+        setError("Fetch failed");
+      }
 
-    if (!form.email.includes("@")) {
-      setError("Email không hợp lệ");
-      return;
-    }
+      setLoading(false);
+    }, 1500);
+  }, []);
 
-    if (form.password.length < 6) {
-      setError("Password >= 6 ký tự");
-      return;
-    }
 
-    setError("");
-    alert("Login success");
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name="email"
-        value={form.email}
-        onChange={handleChange}
-      />
+    <div>
+      <h2>User List</h2>
 
-      <input
-        name="password"
-        type="password"
-        value={form.password}
-        onChange={handleChange}
-      />
+      {users.length > 0 && <p>Có {users.length} user</p>}
 
-      <button type="submit">Login</button>
-
-      {error && <p>{error}</p>}
-    </form>
+      {users.length === 0 ? (
+        <p>Không có user nào</p>
+      ) : (
+        <ul>
+          {users.map(user => (
+            <li key={user.id}>{user.name}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
+export default UserList;
