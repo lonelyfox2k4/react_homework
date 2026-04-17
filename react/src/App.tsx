@@ -1,62 +1,53 @@
 import { useState } from "react";
 
-type FormData = {
-  email: string;
-  password: string;
+type Product = {
+  id: number;
+  name: string;
+  price: number;
 };
 
-export default function LoginForm() {
-  const [form, setForm] = useState<FormData>({
-    email: "",
-    password: ""
-  });
+const products: Product[] = [
+  { id: 1, name: "Laptop", price: 1000 },
+  { id: 2, name: "Phone", price: 500 },
+  { id: 3, name: "Tablet", price: 700 }
+];
 
-  const [error, setError] = useState<string>("");
+export default function ProductList() {
+  const [search, setSearch] = useState<string>("");
+  const [sort, setSort] = useState<"asc" | "desc">("asc");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-
-    if (!form.email.includes("@")) {
-      setError("Email không hợp lệ");
-      return;
-    }
-
-    if (form.password.length < 6) {
-      setError("Password >= 6 ký tự");
-      return;
-    }
-
-    setError("");
-    alert("Login success");
-  };
+  const filtered = products
+    .filter(p =>
+      p.name.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) =>
+      sort === "asc" ? a.price - b.price : b.price - a.price
+    );
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
       <input
-        name="email"
-        value={form.email}
-        onChange={handleChange}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setSearch(e.target.value)
+        }
       />
 
-      <input
-        name="password"
-        type="password"
-        value={form.password}
-        onChange={handleChange}
-      />
+      <select
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setSort(e.target.value as "asc" | "desc")
+        }
+      >
+        <option value="asc">Low → High</option>
+        <option value="desc">High → Low</option>
+      </select>
 
-      <button type="submit">Login</button>
-
-      {error && <p>{error}</p>}
-    </form>
+      <ul>
+        {filtered.map(p => (
+          <li key={p.id}>
+            {p.name} - ${p.price}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
