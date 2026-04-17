@@ -1,54 +1,53 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-type User = {
+type Product = {
   id: number;
   name: string;
+  price: number;
 };
 
-export default function UserList() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
+const products: Product[] = [
+  { id: 1, name: "Laptop", price: 1000 },
+  { id: 2, name: "Phone", price: 500 },
+  { id: 3, name: "Tablet", price: 700 }
+];
 
-  useEffect(() => {
-    setTimeout(() => {
-      // giả lập API
-      const success = true;
+export default function ProductList() {
+  const [search, setSearch] = useState<string>("");
+  const [sort, setSort] = useState<"asc" | "desc">("asc");
 
-      if (success) {
-        setUsers([
-          { id: 1, name: "Sơn" },
-          { id: 2, name: "Nam" }
-        ]);
-      } else {
-        setError("Fetch failed ❌");
-      }
-
-      setLoading(false);
-    }, 1500);
-  }, []);
-
-  // ✅ 1. EARLY RETURN (best practice)
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  const filtered = products
+    .filter(p =>
+      p.name.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) =>
+      sort === "asc" ? a.price - b.price : b.price - a.price
+    );
 
   return (
     <div>
-      <h2>User List</h2>
+      <input
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setSearch(e.target.value)
+        }
+      />
 
-      {/* ✅ 2. && operator */}
-      {users.length > 0 && <p>Có {users.length} user</p>}
+      <select
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setSort(e.target.value as "asc" | "desc")
+        }
+      >
+        <option value="asc">Low → High</option>
+        <option value="desc">High → Low</option>
+      </select>
 
-      {/* ✅ 3. TERNARY */}
-      {users.length === 0 ? (
-        <p>Không có user nào</p>
-      ) : (
-        <ul>
-          {users.map(user => (
-            <li key={user.id}>{user.name}</li>
-          ))}
-        </ul>
-      )}
+      <ul>
+        {filtered.map(p => (
+          <li key={p.id}>
+            {p.name} - ${p.price}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
