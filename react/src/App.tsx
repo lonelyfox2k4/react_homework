@@ -1,54 +1,62 @@
 import { useState } from "react";
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
+type FormData = {
+  email: string;
+  password: string;
 };
 
-const products: Product[] = [
-  { id: 1, name: "Laptop", price: 1000 },
-  { id: 2, name: "Phone", price: 500 },
-  { id: 3, name: "Tablet", price: 700 }
-];
+export default function LoginForm() {
+  const [form, setForm] = useState<FormData>({
+    email: "",
+    password: ""
+  });
 
-function ProductList() {
-  const [search, setSearch] = useState<string>("");
-  const [sort, setSort] = useState<"asc" | "desc">("asc");
+  const [error, setError] = useState<string>("");
 
-  const filtered = products
-    .filter(p =>
-      p.name.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) =>
-      sort === "asc" ? a.price - b.price : b.price - a.price
-    );
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+
+    if (!form.email.includes("@")) {
+      setError("Email không hợp lệ");
+      return;
+    }
+
+    if (form.password.length < 6) {
+      setError("Password >= 6 ký tự");
+      return;
+    }
+
+    setError("");
+    alert("Login success");
+  };
 
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <input
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setSearch(e.target.value)
-        }
+        name="email"
+        value={form.email}
+        onChange={handleChange}
       />
 
-      <select
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-          setSort(e.target.value as "asc" | "desc")
-        }
-      >
-        <option value="asc">Low → High</option>
-        <option value="desc">High → Low</option>
-      </select>
+      <input
+        name="password"
+        type="password"
+        value={form.password}
+        onChange={handleChange}
+      />
 
-      <ul>
-        {filtered.map(p => (
-          <li key={p.id}>
-            {p.name} - ${p.price}
-          </li>
-        ))}
-      </ul>
-    </div>
+      <button type="submit">Login</button>
+
+      {error && <p>{error}</p>}
+    </form>
   );
 }
-export default ProductList;
